@@ -13,21 +13,6 @@ jobs:
       group: functional-${{ github.ref }}
       cancel-in-progress: true
 
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: local_delivery
-          POSTGRES_PASSWORD: local_delivery
-          POSTGRES_DB: local_delivery
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
 
@@ -38,12 +23,5 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      - name: Run migrations
-        env:
-          DATABASE_URL: postgresql+asyncpg://local_delivery:local_delivery@localhost:5432/local_delivery
-        run: alembic upgrade head
-
       - name: Run functional tests
-        env:
-          DATABASE_URL: postgresql+asyncpg://local_delivery:local_delivery@localhost:5432/local_delivery
         run: pytest tests/functional/ -v
