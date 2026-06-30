@@ -68,6 +68,12 @@ jobs:
           docker compose logs app --tail=100
           exit 1
 
+      - name: Seed database
+        run: |
+          set -a
+          source verify/manifest.env
+          eval "$SEED"
+
       - name: Run acceptance tests
         run: |
           set -a

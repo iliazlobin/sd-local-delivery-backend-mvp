@@ -30,6 +30,7 @@ COPY alembic.ini alembic.ini
 COPY alembic/ alembic/
 COPY src/ src/
 COPY pyproject.toml pyproject.toml
+COPY scripts/ scripts/
 
 ENV PYTHONPATH=/app/src
 ENV PYTHONUNBUFFERED=1
