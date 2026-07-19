@@ -32,9 +32,16 @@ class FakeRedis:
 # ── White-box test database fixtures ──────────────────────────────────────
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="function")
 async def test_engine():
-    """Session-scoped async SQLite engine (in-memory, shared)."""
+    """Function-scoped async SQLite engine — fresh in-memory DB per test.
+
+    Note: this fixture is intentionally function-scoped because the service
+    layer calls ``session.commit()`` which releases savepoints before the outer
+    transaction can roll back.  A function-scoped engine gives each test its own
+    ``:memory:`` database, so ``commit()`` inside one test never leaks data
+    into the next.
+    """
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
         echo=False,
