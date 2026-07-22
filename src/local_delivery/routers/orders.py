@@ -124,6 +124,9 @@ async def advance_status(
         raise HTTPException(status_code=404, detail="Order not found")
     if result.get("status") == "conflict":
         raise HTTPException(status_code=409, detail=result.get("detail", "Invalid transition"))
+    # Commit before the response is sent (not after yield in get_db),
+    # so subsequent requests see the updated status immediately.
+    await db.commit()
     return result
 
 

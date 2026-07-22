@@ -55,17 +55,20 @@ async def test_engine():
 @pytest_asyncio.fixture
 async def db(test_engine) -> AsyncGenerator[AsyncSession, None]:
     """Per-test session that rolls back everything at teardown."""
-    async with test_engine.connect() as conn:
-        async with conn.begin() as trans:
-            session_factory = async_sessionmaker(
-                bind=conn,
-                class_=AsyncSession,
-                expire_on_commit=False,
-                join_transaction_mode="create_savepoint",
-            )
-            async with session_factory() as session:
-                yield session
-            await trans.rollback()
+    conn = await test_engine.connect()
+    trans = await conn.begin()
+    try:
+        session_factory = async_sessionmaker(
+            bind=conn,
+            class_=AsyncSession,
+            expire_on_commit=False,
+            join_transaction_mode="create_savepoint",
+        )
+        async with session_factory() as session:
+            yield session
+    finally:
+        await trans.rollback()
+        await conn.close()
 
 
 # ── HTTP client for functional tests ──────────────────────────────────────
