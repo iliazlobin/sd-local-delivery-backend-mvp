@@ -186,6 +186,7 @@ class OrderService:
             )
 
         await self.db.flush()
+        await self.db.commit()
 
         return {
             "order_id": str(order_id),
@@ -230,6 +231,7 @@ class OrderService:
         order.status = new_status
         order.updated_at = datetime.now(timezone.utc)
         await self.db.flush()
+        await self.db.commit()
 
         return {"status": new_status}
 
@@ -259,6 +261,7 @@ class OrderService:
         order.status = "cancelled"
         order.updated_at = datetime.now(timezone.utc)
         await self.db.flush()
+        await self.db.commit()
 
         return {
             "order_id": str(order_id),
